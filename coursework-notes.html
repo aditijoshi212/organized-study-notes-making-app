@@ -1,0 +1,617 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#faf7f0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #faf7f0;
+    --paper-line: #ece5d6;
+    --card: #ffffff;
+    --ink: #232323;
+    --ink-dim: #7a7568;
+    --border: #e7e0d0;
+    --accent: #d16b4c;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(16px, 6vw, 32px) clamp(14px, 5vw, 24px) 64px;
+    padding-left: max(clamp(14px, 5vw, 24px), env(safe-area-inset-left));
+    padding-right: max(clamp(14px, 5vw, 24px), env(safe-area-inset-right));
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Newsreader', serif;
+    font-weight: 600;
+    font-size: clamp(24px, 6vw, 30px);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .tagline {
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin-top: 4px;
+  }
+
+  .new-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 20px;
+    min-height: 44px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .new-btn:hover { filter: brightness(1.15); }
+
+  /* ---- Search ---- */
+  .search-bar {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    outline: none;
+  }
+  .search-bar::placeholder { color: var(--ink-dim); }
+
+  /* ---- Subject tabs ---- */
+  .tabs-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 20px;
+    scrollbar-width: none;
+  }
+  .tabs-row::-webkit-scrollbar { display: none; }
+
+  .tab-chip {
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--ink-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .tab-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tab-color, var(--accent)); }
+
+  .tab-chip.active {
+    border-color: var(--tab-color, var(--ink));
+    background: color-mix(in srgb, var(--tab-color, var(--accent)) 14%, white);
+    color: var(--ink);
+  }
+
+  /* ---- New note form ---- */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: clamp(16px, 5vw, 22px);
+    margin-bottom: 22px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.04);
+  }
+
+  .form-card h2 {
+    font-family: 'Newsreader', serif;
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0 0 16px;
+  }
+
+  .field-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .field-row > * { flex: 1; min-width: 140px; }
+
+  input[type=text], .note-body {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    padding: 11px 13px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+  }
+  input[type=text]:focus, .note-body:focus { border-color: var(--ink); }
+
+  .note-body {
+    min-height: 110px;
+    resize: vertical;
+    font-family: 'Newsreader', serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .title-input { font-family: 'Newsreader', serif; font-weight: 600; font-size: 17px; }
+
+  .tag-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--paper);
+    margin-bottom: 12px;
+  }
+  .tag-input-row input {
+    border: none;
+    background: none;
+    outline: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    flex: 1;
+    min-width: 90px;
+    padding: 4px;
+  }
+
+  .tag-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    background: var(--border);
+    padding: 4px 10px 4px 10px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tag-pill button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--ink-dim);
+    font-size: 13px;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .btn-ghost {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--ink-dim);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 10px 18px;
+    min-height: 44px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+
+  .btn-solid {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 10px 20px;
+    min-height: 44px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .btn-solid:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---- Notes grid ---- */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .note-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--note-color, var(--accent));
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
+  }
+
+  .note-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+  .note-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+
+  .note-title {
+    font-family: 'Newsreader', serif;
+    font-weight: 600;
+    font-size: 16.5px;
+    margin: 0;
+  }
+
+  .note-subject {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--note-color, var(--accent));
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+
+  .note-snippet {
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    line-height: 1.5;
+    flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  .note-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .note-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .note-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-dim);
+    background: var(--paper);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  .note-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+
+  .empty {
+    text-align: center;
+    color: var(--ink-dim);
+    font-size: 13.5px;
+    padding: 60px 20px;
+    border: 1.5px dashed var(--border);
+    border-radius: 14px;
+  }
+
+  /* ---- Modal / edit overlay ---- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(35,35,35,0.4);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 20;
+    padding: 0;
+  }
+  @media (min-width: 640px) {
+    .overlay { align-items: center; padding: 20px; }
+  }
+
+  .modal-card {
+    background: var(--card);
+    width: 100%;
+    max-width: 560px;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 16px 16px 0 0;
+    padding: clamp(18px, 5vw, 26px);
+  }
+  @media (min-width: 640px) {
+    .modal-card { border-radius: 16px; }
+  }
+
+  .modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .close-x {
+    background: none; border: none; font-size: 20px; color: var(--ink-dim); cursor: pointer;
+    padding: 6px; line-height: 1;
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Coursework Notes</h1>
+      <div class="tagline">study notes, sorted by subject</div>
+    </div>
+    <button class="new-btn" id="newNoteBtn">+ New note</button>
+  </header>
+
+  <input type="text" class="search-bar" id="searchBar" placeholder="Search titles, notes, tags…">
+
+  <div class="tabs-row" id="tabsRow"></div>
+
+  <div id="formSlot"></div>
+
+  <div class="notes-grid" id="notesGrid"></div>
+</div>
+
+<script>
+(function () {
+  const PALETTE = ['#d16b4c', '#4c7cd1', '#3f9f6b', '#c58f2f', '#9068c9', '#c94f8c', '#2f9fa0', '#a3702f'];
+
+  let notes = [];
+  let activeSubject = 'All';
+  let searchTerm = '';
+  let editingId = null;
+  let formTags = [];
+
+  const tabsRow = document.getElementById('tabsRow');
+  const notesGrid = document.getElementById('notesGrid');
+  const searchBar = document.getElementById('searchBar');
+  const formSlot = document.getElementById('formSlot');
+  const newNoteBtn = document.getElementById('newNoteBtn');
+
+  function subjectColor(subject) {
+    let h = 0;
+    for (let i = 0; i < subject.length; i++) h = (h * 31 + subject.charCodeAt(i)) >>> 0;
+    return PALETTE[h % PALETTE.length];
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  async function loadNotes() {
+    try {
+      const raw = localStorage.getItem('coursework-notes');
+      notes = raw ? JSON.parse(raw) : [];
+    } catch (e) { notes = []; }
+    renderAll();
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem('coursework-notes', JSON.stringify(notes));
+    } catch (e) {}
+  }
+
+  function getSubjects() {
+    const set = new Set(notes.map(n => n.subject).filter(Boolean));
+    return [...set].sort();
+  }
+
+  function renderTabs() {
+    const subjects = getSubjects();
+    tabsRow.innerHTML = '';
+    const all = document.createElement('button');
+    all.className = 'tab-chip' + (activeSubject === 'All' ? ' active' : '');
+    all.textContent = `All (${notes.length})`;
+    all.onclick = () => { activeSubject = 'All'; renderAll(); };
+    tabsRow.appendChild(all);
+
+    subjects.forEach(s => {
+      const count = notes.filter(n => n.subject === s).length;
+      const chip = document.createElement('button');
+      chip.className = 'tab-chip' + (activeSubject === s ? ' active' : '');
+      chip.style.setProperty('--tab-color', subjectColor(s));
+      chip.innerHTML = `<span class="tab-dot"></span>${s} (${count})`;
+      chip.onclick = () => { activeSubject = s; renderAll(); };
+      tabsRow.appendChild(chip);
+    });
+  }
+
+  function filteredNotes() {
+    return notes
+      .filter(n => activeSubject === 'All' || n.subject === activeSubject)
+      .filter(n => {
+        if (!searchTerm) return true;
+        const t = searchTerm.toLowerCase();
+        return n.title.toLowerCase().includes(t)
+          || n.body.toLowerCase().includes(t)
+          || (n.tags || []).some(tag => tag.toLowerCase().includes(t))
+          || (n.subject || '').toLowerCase().includes(t);
+      })
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  }
+
+  function renderGrid() {
+    const list = filteredNotes();
+    notesGrid.innerHTML = '';
+    if (list.length === 0) {
+      notesGrid.innerHTML = `<div class="empty" style="grid-column:1/-1;">
+        ${notes.length === 0 ? 'No notes yet — add your first one above.' : 'Nothing matches that search.'}
+      </div>`;
+      return;
+    }
+    list.forEach(n => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+      const color = n.subject ? subjectColor(n.subject) : '#a3702f';
+      card.style.setProperty('--note-color', color);
+      card.innerHTML = `
+        <div class="note-top">
+          <h3 class="note-title"></h3>
+        </div>
+        <div class="note-subject"></div>
+        <div class="note-snippet"></div>
+        <div class="note-bottom">
+          <div class="note-tags"></div>
+          <div class="note-date">${fmtDate(n.updatedAt)}</div>
+        </div>
+      `;
+      card.querySelector('.note-title').textContent = n.title || 'Untitled';
+      card.querySelector('.note-subject').textContent = n.subject || 'No subject';
+      card.querySelector('.note-snippet').textContent = n.body;
+      const tagsWrap = card.querySelector('.note-tags');
+      (n.tags || []).slice(0, 3).forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'note-tag';
+        span.textContent = t;
+        tagsWrap.appendChild(span);
+      });
+      card.onclick = () => openForm(n.id);
+      notesGrid.appendChild(card);
+    });
+  }
+
+  function renderAll() {
+    renderTabs();
+    renderGrid();
+  }
+
+  function closeForm() {
+    formSlot.innerHTML = '';
+    editingId = null;
+    formTags = [];
+  }
+
+  function openForm(id) {
+    editingId = id || null;
+    const existing = id ? notes.find(n => n.id === id) : null;
+    formTags = existing ? [...(existing.tags || [])] : [];
+
+    formSlot.innerHTML = `
+      <div class="form-card">
+        <h2>${existing ? 'Edit note' : 'New note'}</h2>
+        <div class="field-row">
+          <input type="text" class="title-input" id="fTitle" placeholder="Title" value="${existing ? escapeAttr(existing.title) : ''}">
+          <input type="text" id="fSubject" placeholder="Subject (e.g. Biology)" value="${existing ? escapeAttr(existing.subject || '') : ''}">
+        </div>
+        <div class="tag-input-row" id="tagRow">
+          <input type="text" id="fTagInput" placeholder="Add tag, press Enter">
+        </div>
+        <textarea class="note-body" id="fBody" placeholder="Write your notes here…">${existing ? existing.body : ''}</textarea>
+        <div class="form-actions">
+          ${existing ? '<button class="btn-ghost" id="fDelete">Delete</button>' : ''}
+          <button class="btn-ghost" id="fCancel">Cancel</button>
+          <button class="btn-solid" id="fSave">${existing ? 'Save changes' : 'Add note'}</button>
+        </div>
+      </div>
+    `;
+
+    renderTagChips();
+    document.getElementById('fTagInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = e.target.value.trim();
+        if (val && !formTags.includes(val)) {
+          formTags.push(val);
+          renderTagChips();
+        }
+        e.target.value = '';
+      }
+    });
+
+    document.getElementById('fCancel').onclick = closeForm;
+    document.getElementById('fSave').onclick = saveForm;
+    if (existing) {
+      document.getElementById('fDelete').onclick = () => {
+        notes = notes.filter(n => n.id !== existing.id);
+        persist();
+        closeForm();
+        renderAll();
+      };
+    }
+
+    formSlot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderTagChips() {
+    const row = document.getElementById('tagRow');
+    const input = document.getElementById('fTagInput');
+    row.querySelectorAll('.tag-pill').forEach(el => el.remove());
+    formTags.forEach((t, i) => {
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill';
+      pill.innerHTML = `${escapeHtml(t)} <button type="button">×</button>`;
+      pill.querySelector('button').onclick = () => { formTags.splice(i, 1); renderTagChips(); };
+      row.insertBefore(pill, input);
+    });
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+  function escapeAttr(str) { return escapeHtml(str).replace(/"/g, '&quot;'); }
+
+  function saveForm() {
+    const title = document.getElementById('fTitle').value.trim();
+    const subject = document.getElementById('fSubject').value.trim();
+    const body = document.getElementById('fBody').value.trim();
+    if (!title && !body) { closeForm(); return; }
+
+    if (editingId) {
+      const n = notes.find(x => x.id === editingId);
+      n.title = title || 'Untitled';
+      n.subject = subject;
+      n.body = body;
+      n.tags = [...formTags];
+      n.updatedAt = new Date().toISOString();
+    } else {
+      notes.push({
+        id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        title: title || 'Untitled',
+        subject,
+        body,
+        tags: [...formTags],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    persist();
+    closeForm();
+    renderAll();
+  }
+
+  newNoteBtn.addEventListener('click', () => openForm(null));
+  searchBar.addEventListener('input', (e) => { searchTerm = e.target.value; renderGrid(); });
+
+  loadNotes();
+})();
+</script>
